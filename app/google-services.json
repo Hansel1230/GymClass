@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "462746297003",
+    "project_id": "webprogramingfinalproyect",
+    "storage_bucket": "webprogramingfinalproyect.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462746297003:android:dfabd1ee07b477b6948dee",
+        "android_client_info": {
+          "package_name": "com.universidad.gymclass"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp7jOL0L7RXnUvadiZQDWtviK1O8qwiTQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
