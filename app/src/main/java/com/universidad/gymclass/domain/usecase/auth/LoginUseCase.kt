@@ -1,8 +1,11 @@
 package com.universidad.gymclass.domain.usecase.auth
 
+import com.universidad.gymclass.domain.model.AuthResult
 import com.universidad.gymclass.domain.repository.AuthRepository
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(private val repository: AuthRepository) {
-    // Lógica para el caso de uso de login
+    suspend operator fun invoke(email: String, password: String): AuthResult {
+        return repository.login(email, password)
+    }
 }

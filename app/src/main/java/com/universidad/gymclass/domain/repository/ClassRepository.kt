@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ClassRepository {
     fun getClasses(): Flow<List<GymClass>>
+    suspend fun getClassById(id: String): GymClass?
 }
