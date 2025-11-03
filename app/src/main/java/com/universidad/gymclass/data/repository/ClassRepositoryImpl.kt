@@ -15,14 +15,13 @@ class ClassRepositoryImpl @Inject constructor(
 
     override fun getClasses(): Flow<List<GymClass>> = flow {
         val classDtos = firestoreDataSource.getClasses()
-        val gymClasses = classDtos.map { mapper.toDomain(it) }
+        val gymClasses = classDtos.map { (id, dto) -> mapper.toDomain(dto, id) }
         emit(gymClasses)
     }
 
     override suspend fun getClassById(id: String): GymClass? {
-        // Por ahora, obtenemos todas y filtramos.
-        // En una app real, aquí haríamos una consulta directa a Firestore por ID.
-        val gymClasses = firestoreDataSource.getClasses().map { mapper.toDomain(it) }
+        val classDtos = firestoreDataSource.getClasses()
+        val gymClasses = classDtos.map { (id, dto) -> mapper.toDomain(dto, id) }
         return gymClasses.find { it.id == id }
     }
 }

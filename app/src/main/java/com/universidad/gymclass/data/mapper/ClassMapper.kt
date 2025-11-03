@@ -7,9 +7,9 @@ import javax.inject.Inject
 
 class ClassMapper @Inject constructor() {
 
-    fun toDomain(dto: ClassDto): GymClass {
+    fun toDomain(dto: ClassDto, id: String): GymClass {
         return GymClass(
-            id = dto.id,
+            id = id,
             name = dto.name,
             instructor = dto.instructor,
             description = dto.description,

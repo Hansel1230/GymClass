@@ -7,10 +7,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,14 +35,25 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(state.isUserLoggedOut) {
+        if (state.isUserLoggedOut) {
+            navController.navigate(Screen.LoginScreen.route) {
+                popUpTo(0) // Limpia todo el back stack
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("GymClass", fontWeight = FontWeight.Bold) },
                 actions = {
-                    TextButton(onClick = { /* TODO: Navigate to My Reservations */ }) {
+                    TextButton(onClick = { navController.navigate(Screen.MyReservationsScreen.route) }) {
                         Icon(Icons.Default.CalendarToday, contentDescription = "Mis Reservas", modifier = Modifier.padding(end = 4.dp))
                         Text("Mis Reservas")
+                    }
+                    IconButton(onClick = { viewModel.signOut() }) {
+                        Icon(Icons.Default.Logout, contentDescription = "Cerrar Sesión")
                     }
                 }
             )
@@ -65,7 +78,6 @@ fun HomeScreen(
                 }
 
                 val groupedClasses = classesToShow.groupBy { it.dayOfWeek }
-                // Ordenamos el mapa por el día de la semana
                 val sortedGroupedClasses = groupedClasses.entries.sortedBy { it.key }
 
                 LazyColumn(
@@ -105,7 +117,7 @@ fun WelcomeMessage() {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "¡Hola, Hansel De Los Santos! 👋", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Bienvenido 👋", style = MaterialTheme.typography.titleMedium)
             Text(text = "Explora y reserva tus clases favoritas del gimnasio", style = MaterialTheme.typography.bodyMedium)
         }
     }
@@ -113,7 +125,7 @@ fun WelcomeMessage() {
 
 @Composable
 fun DayFilterBar(selectedDay: DayOfWeek?, onDaySelected: (DayOfWeek?) -> Unit) {
-    val days = listOf(null) + DayOfWeek.values() // null for "Todos"
+    val days = listOf(null) + DayOfWeek.values()
 
     Row(
         modifier = Modifier

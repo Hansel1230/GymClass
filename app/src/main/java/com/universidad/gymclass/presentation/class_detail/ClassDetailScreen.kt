@@ -7,26 +7,44 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassDetailScreen(
     navController: NavController,
     classId: String,
+    reservationId: String?,
     viewModel: ClassDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(state.statusMessage) {
+        state.statusMessage?.let { message ->
+            scope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+        }
+    }
+    
+    LaunchedEffect(state.reservationCancelled) {
+        if (state.reservationCancelled) {
+            navController.popBackStack()
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Detalle de la Clase") },
@@ -51,31 +69,44 @@ fun ClassDetailScreen(
                 ) {
                     Text(text = gymClass.name, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                     Text(text = gymClass.description, style = MaterialTheme.typography.bodyLarge)
-                    
+
                     Divider()
 
                     InfoRow(icon = Icons.Default.Person, title = "Instructor", subtitle = gymClass.instructor)
                     InfoRow(icon = Icons.Default.Schedule, title = "Horario", subtitle = "${gymClass.startTime} - ${gymClass.endTime}")
                     InfoRow(icon = Icons.Default.CalendarToday, title = "Capacidad", subtitle = "${gymClass.availableSlots} de 25 disponibles")
-                    
+
                     Spacer(modifier = Modifier.weight(1f))
 
-                    Button(
-                        onClick = { /* TODO: Implement reservation logic */ },
-                        modifier = Modifier.fillMaxWidth().height(50.dp)
-                    ) {
-                        Text("Reservar Lugar")
+                    // Botón dinámico
+                    if (state.isReserved) {
+                        Button(
+                            onClick = { viewModel.onCancelClicked() },
+                            enabled = !state.isProcessingReservation, // Control de habilitación
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text("Cancelar Reserva")
+                        }
+                    } else {
+                        Button(
+                            onClick = { viewModel.onReserveClicked() },
+                            enabled = !state.isProcessingReservation, // Control de habilitación
+                            modifier = Modifier.fillMaxWidth().height(50.dp)
+                        ) {
+                            Text("Reservar Lugar")
+                        }
                     }
                 }
             } else {
-                Text("Clase no encontrada", modifier = Modifier.align(Alignment.Center))
+                Text(state.error ?: "Clase no encontrada", modifier = Modifier.align(Alignment.Center))
             }
         }
     }
 }
 
 @Composable
-fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String) {
+fun InfoRow(icon: ImageVector, title: String, subtitle: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = title, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(16.dp))

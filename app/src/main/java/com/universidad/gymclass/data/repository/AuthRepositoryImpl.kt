@@ -31,7 +31,21 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun signInWithGoogle(idToken: String): AuthResult {
+        return try {
+            val result = firebaseAuthDataSource.signInWithGoogle(idToken)
+            val user = result.user?.let { mapper.toDomain(it) }
+            AuthResult(user = user)
+        } catch (e: Exception) {
+            AuthResult(errorMessage = e.message)
+        }
+    }
+
     override fun getCurrentUser(): User? {
         return firebaseAuthDataSource.getCurrentUser()?.let { mapper.toDomain(it) }
+    }
+
+    override suspend fun signOut() {
+        firebaseAuthDataSource.signOut()
     }
 }
