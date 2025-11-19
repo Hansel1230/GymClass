@@ -6,7 +6,6 @@ import com.universidad.gymclass.domain.repository.ClassRepository
 import com.universidad.gymclass.domain.repository.ReservationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
