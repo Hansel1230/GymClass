@@ -3,30 +3,25 @@ package com.universidad.gymclass.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universidad.gymclass.domain.model.GymClass
-import com.universidad.gymclass.domain.usecase.auth.SignOutUseCase
+import com.universidad.gymclass.domain.repository.AuthRepository
 import com.universidad.gymclass.domain.usecase.classes.GetClassesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import javax.inject.Inject
 
 data class HomeState(
     val classes: List<GymClass> = emptyList(),
-    val selectedDay: DayOfWeek? = null, // null significa "Todos"
     val isLoading: Boolean = true,
-    val isUserLoggedOut: Boolean = false
+    val isUserLoggedOut: Boolean = false,
+    val selectedDay: DayOfWeek? = null
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getClassesUseCase: GetClassesUseCase,
-    private val signOutUseCase: SignOutUseCase
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -37,6 +32,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadClasses() {
+        _uiState.update { it.copy(isLoading = true) }
         getClassesUseCase().onEach { classes ->
             _uiState.update {
                 it.copy(
@@ -53,7 +49,7 @@ class HomeViewModel @Inject constructor(
 
     fun signOut() {
         viewModelScope.launch {
-            signOutUseCase()
+            authRepository.signOut()
             _uiState.update { it.copy(isUserLoggedOut = true) }
         }
     }

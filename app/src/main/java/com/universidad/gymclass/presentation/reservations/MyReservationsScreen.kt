@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,40 +33,38 @@ fun MyReservationsScreen(
             TopAppBar(
                 title = { Text("Mis Reservas") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
-            if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (state.reservations.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Aún no tienes reservas.")
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(state.reservations) { reservationDetails ->
-                        ReservationCard(
-                            reservationDetails = reservationDetails,
-                            onClick = {
-                                // Navegamos a la pantalla de detalle, pasando ambos IDs
-                                navController.navigate(
-                                    Screen.ClassDetailScreen.createRoute(
-                                        classId = reservationDetails.gymClass.id,
-                                        reservationId = reservationDetails.reservation.id
-                                    )
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(modifier = Modifier.align(androidx.compose.ui.Alignment.Center))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(state.reservations) { reservationDetails ->
+                    ReservationItem(
+                        reservationDetails = reservationDetails,
+                        onClick = {
+                            navController.navigate(
+                                Screen.ClassDetailScreen.createRoute(
+                                    classId = reservationDetails.gymClass.id,
+                                    reservationId = reservationDetails.reservation.id,
+                                    classDate = reservationDetails.reservation.classDate.time
                                 )
-                            }
-                        )
-                    }
+                            )
+                        }
+                    )
                 }
             }
         }
@@ -75,11 +72,17 @@ fun MyReservationsScreen(
 }
 
 @Composable
-fun ReservationCard(reservationDetails: ReservationWithClassDetails, onClick: () -> Unit) {
-    val dateFormatter = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale.getDefault())
+fun ReservationItem(
+    reservationDetails: ReservationWithClassDetails,
+    onClick: () -> Unit
+) {
+    val dateFormatter = SimpleDateFormat("EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
+    val formattedDate = dateFormatter.format(reservationDetails.reservation.classDate)
 
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -88,18 +91,11 @@ fun ReservationCard(reservationDetails: ReservationWithClassDetails, onClick: ()
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Text(
-                text = "Instructor: ${reservationDetails.gymClass.instructor}",
-                style = MaterialTheme.typography.bodySmall
-            )
+            Text(text = "Instructor: ${reservationDetails.gymClass.instructor}")
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Fecha: ${dateFormatter.format(reservationDetails.reservation.classDate)}",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text(text = "Fecha: $formattedDate")
             Text(
                 text = "Estado: ${reservationDetails.reservation.status}",
-                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary
             )
         }

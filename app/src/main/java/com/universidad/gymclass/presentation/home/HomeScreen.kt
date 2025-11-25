@@ -3,11 +3,12 @@ package com.universidad.gymclass.presentation.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
@@ -25,7 +26,7 @@ import com.universidad.gymclass.domain.model.GymClass
 import com.universidad.gymclass.presentation.navigation.Screen
 import java.time.DayOfWeek
 import java.time.format.TextStyle
-import java.util.Locale
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +54,7 @@ fun HomeScreen(
                         Text("Mis Reservas")
                     }
                     IconButton(onClick = { viewModel.signOut() }) {
-                        Icon(Icons.Default.Logout, contentDescription = "Cerrar Sesión")
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar Sesión")
                     }
                 }
             )
@@ -82,7 +83,7 @@ fun HomeScreen(
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     sortedGroupedClasses.forEach { (day, classes) ->
@@ -97,7 +98,13 @@ fun HomeScreen(
                             ClassCard(
                                 gymClass = gymClass,
                                 onClick = {
-                                    navController.navigate(Screen.ClassDetailScreen.createRoute(gymClass.id))
+                                    navController.navigate(
+                                        Screen.ClassDetailScreen.createRoute(
+                                            classId = gymClass.id,
+                                            reservationId = null,
+                                            classDate = System.currentTimeMillis()
+                                        )
+                                    )
                                 }
                             )
                         }
@@ -125,15 +132,14 @@ fun WelcomeMessage() {
 
 @Composable
 fun DayFilterBar(selectedDay: DayOfWeek?, onDaySelected: (DayOfWeek?) -> Unit) {
-    val days = listOf(null) + DayOfWeek.values()
+    val days = listOf(null) + DayOfWeek.values().toList()
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        days.forEach { day ->
+        items(days) { day ->
             val isSelected = day == selectedDay
             FilterChip(
                 selected = isSelected,
@@ -142,7 +148,7 @@ fun DayFilterBar(selectedDay: DayOfWeek?, onDaySelected: (DayOfWeek?) -> Unit) {
                     Text(
                         text = when (day) {
                             null -> "Todos"
-                            else -> day.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                            else -> day.getDisplayName(TextStyle.SHORT, Locale("es", "ES"))
                         }
                     )
                 },
