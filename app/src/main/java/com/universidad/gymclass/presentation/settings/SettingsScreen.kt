@@ -23,7 +23,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val selectedTime by viewModel.reminderTime.collectAsState()
-    val reminderOptions = listOf(5, 10, 15, 30)
+    val reminderOptions = listOf(1, 2, 5, 10, 15, 30) // Added 1 and 2 for testing
 
     Scaffold(
         topBar = {
@@ -68,7 +68,7 @@ fun SettingsScreen(
                             onClick = null 
                         )
                         Text(
-                            text = "$minutes minutos antes",
+                            text = if (minutes > 1) "$minutes minutos antes" else "$minutes minuto antes",
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(start = 16.dp)
                         )
