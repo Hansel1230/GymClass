@@ -11,6 +11,7 @@ import com.universidad.gymclass.presentation.auth.RegisterScreen
 import com.universidad.gymclass.presentation.class_detail.ClassDetailScreen
 import com.universidad.gymclass.presentation.home.HomeScreen
 import com.universidad.gymclass.presentation.reservations.MyReservationsScreen
+import com.universidad.gymclass.presentation.settings.SettingsScreen
 import java.util.Date
 
 @Composable
@@ -28,6 +29,9 @@ fun GymClassNavigation() {
         }
         composable(Screen.MyReservationsScreen.route) {
             MyReservationsScreen(navController = navController)
+        }
+        composable(Screen.SettingsScreen.route) {
+            SettingsScreen(navController = navController)
         }
         composable(
             route = Screen.ClassDetailScreen.route,
@@ -52,7 +56,7 @@ fun GymClassNavigation() {
             ClassDetailScreen(
                 navController = navController,
                 classId = classId,
-                reservationId = reservationId,
+                reservationId = if (reservationId == "null") null else reservationId,
                 classDate = classDate
             )
         }

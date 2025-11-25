@@ -1,11 +1,7 @@
 package com.universidad.gymclass.di
 
-import com.universidad.gymclass.data.repository.AuthRepositoryImpl
-import com.universidad.gymclass.data.repository.ClassRepositoryImpl
-import com.universidad.gymclass.data.repository.ReservationRepositoryImpl
-import com.universidad.gymclass.domain.repository.AuthRepository
-import com.universidad.gymclass.domain.repository.ClassRepository
-import com.universidad.gymclass.domain.repository.ReservationRepository
+import com.universidad.gymclass.data.repository.*
+import com.universidad.gymclass.domain.repository.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,4 +29,10 @@ abstract class RepositoryModule {
     abstract fun bindReservationRepository(
         reservationRepositoryImpl: ReservationRepositoryImpl
     ): ReservationRepository
+        
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(
+        settingsRepositoryImpl: SettingsRepositoryImpl
+    ): SettingsRepository
 }

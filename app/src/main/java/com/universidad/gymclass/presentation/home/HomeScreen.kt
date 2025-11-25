@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +52,9 @@ fun HomeScreen(
                 actions = {
                     TextButton(onClick = { navController.navigate(Screen.MyReservationsScreen.route) }) {
                         Icon(Icons.Default.CalendarToday, contentDescription = "Mis Reservas", modifier = Modifier.padding(end = 4.dp))
-                        Text("Mis Reservas")
+                    }
+                    IconButton(onClick = { navController.navigate(Screen.SettingsScreen.route) }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Configuración")
                     }
                     IconButton(onClick = { viewModel.signOut() }) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar Sesión")
