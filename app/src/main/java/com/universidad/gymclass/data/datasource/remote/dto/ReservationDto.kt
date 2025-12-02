@@ -1,11 +1,14 @@
 package com.universidad.gymclass.data.datasource.remote.dto
 
-import com.google.firebase.Timestamp
+import com.google.firebase.firestore.ServerTimestamp
+import java.util.Date
 
+// This DTO must match the structure of the document in Firestore
 data class ReservationDto(
     val userId: String = "",
     val classId: String = "",
-    val classDate: Timestamp? = null,
-    val status: String = "",
-    val createdAt: Timestamp = Timestamp.now()
+    val classDate: Date = Date(),
+    val status: String = "CONFIRMED",
+    @ServerTimestamp
+    val createdAt: Date? = null // Added the missing field
 )
