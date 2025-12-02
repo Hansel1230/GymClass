@@ -8,49 +8,50 @@ import com.universidad.gymclass.domain.usecase.classes.GetClassesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import javax.inject.Inject
 
 data class HomeState(
     val classes: List<GymClass> = emptyList(),
     val isLoading: Boolean = true,
     val isUserLoggedOut: Boolean = false,
-    val selectedDay: DayOfWeek? = null
+    val selectedDay: Int? = null
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getClassesUseCase: GetClassesUseCase,
+    getClassesUseCase: GetClassesUseCase,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeState())
-    val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
+    private val _selectedDay = MutableStateFlow<Int?>(null)
 
-    init {
-        loadClasses()
-    }
+    val uiState: StateFlow<HomeState> = combine(
+        getClassesUseCase(),
+        _selectedDay
+    ) { classes, selectedDay ->
+        HomeState(
+            classes = classes,
+            selectedDay = selectedDay,
+            isLoading = false
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = HomeState(isLoading = true)
+    )
 
-    private fun loadClasses() {
-        _uiState.update { it.copy(isLoading = true) }
-        getClassesUseCase().onEach { classes ->
-            _uiState.update {
-                it.copy(
-                    classes = classes,
-                    isLoading = false
-                )
-            }
-        }.launchIn(viewModelScope)
-    }
+    private val _isUserLoggedOut = MutableStateFlow(false)
+    val isUserLoggedOut: StateFlow<Boolean> = _isUserLoggedOut.asStateFlow()
 
-    fun onDaySelected(day: DayOfWeek?) {
-        _uiState.update { it.copy(selectedDay = day) }
+
+    fun onDaySelected(day: Int?) {
+        _selectedDay.value = day
     }
 
     fun signOut() {
         viewModelScope.launch {
             authRepository.signOut()
-            _uiState.update { it.copy(isUserLoggedOut = true) }
+            _isUserLoggedOut.value = true
         }
     }
 }
