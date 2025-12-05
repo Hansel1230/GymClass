@@ -1,5 +1,12 @@
 package com.universidad.gymclass.domain.repository
 
+import com.universidad.gymclass.domain.model.AuthResult
+import com.universidad.gymclass.domain.model.User
+
 interface AuthRepository {
-    // Definir métodos para la autenticación
+    suspend fun login(email: String, password: String): AuthResult
+    suspend fun register(email: String, password: String): AuthResult
+    suspend fun signInWithGoogle(idToken: String): AuthResult
+    fun getCurrentUser(): User?
+    suspend fun signOut()
 }

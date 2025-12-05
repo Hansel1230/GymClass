@@ -12,7 +12,20 @@
           "package_name": "com.universidad.gymclass"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "462746297003-eijn8c0fhp1e249l0gll02v2i9k60pkb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.universidad.gymclass",
+            "certificate_hash": "042e842467c2465900776aafc9413d014e36659c"
+          }
+        },
+        {
+          "client_id": "462746297003-44hli6tili58ri2q5ab81v8o4v7dona1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBp7jOL0L7RXnUvadiZQDWtviK1O8qwiTQ"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "462746297003-44hli6tili58ri2q5ab81v8o4v7dona1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

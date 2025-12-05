@@ -3,6 +3,8 @@ package com.universidad.gymclass.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import com.universidad.gymclass.presentation.navigation.GymClassNavigation
 import com.universidad.gymclass.presentation.theme.GymClassTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,5 +18,13 @@ class MainActivity : ComponentActivity() {
                 GymClassNavigation()
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    GymClassTheme {
+        GymClassNavigation()
     }
 }

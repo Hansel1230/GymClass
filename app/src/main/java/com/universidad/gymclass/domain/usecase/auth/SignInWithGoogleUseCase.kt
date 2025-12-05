@@ -4,8 +4,8 @@ import com.universidad.gymclass.domain.model.AuthResult
 import com.universidad.gymclass.domain.repository.AuthRepository
 import javax.inject.Inject
 
-class LoginUseCase @Inject constructor(private val repository: AuthRepository) {
-    suspend operator fun invoke(email: String, password: String): AuthResult {
-        return repository.login(email, password)
+class SignInWithGoogleUseCase @Inject constructor(private val repository: AuthRepository) {
+    suspend operator fun invoke(idToken: String): AuthResult {
+        return repository.signInWithGoogle(idToken)
     }
 }
