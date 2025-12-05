@@ -1,5 +1,6 @@
 package com.universidad.gymclass.data.mapper
 
+import com.google.firebase.Timestamp
 import com.universidad.gymclass.data.datasource.remote.dto.ReservationDto
 import com.universidad.gymclass.domain.model.Reservation
 import javax.inject.Inject
@@ -11,7 +12,7 @@ class ReservationMapper @Inject constructor() {
             id = id,
             userId = dto.userId,
             classId = dto.classId,
-            classDate = dto.classDate!!.toDate(),
+            classDate = dto.classDate, // Corrected this line
             status = dto.status
         )
     }
@@ -20,7 +21,7 @@ class ReservationMapper @Inject constructor() {
         return ReservationDto(
             userId = domain.userId,
             classId = domain.classId,
-            classDate = com.google.firebase.Timestamp(domain.classDate),
+            classDate = domain.classDate,
             status = domain.status
         )
     }

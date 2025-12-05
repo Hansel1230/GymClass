@@ -9,6 +9,7 @@ import com.universidad.gymclass.domain.usecase.classes.GetClassDetailUseCase
 import com.universidad.gymclass.domain.usecase.reservations.CancelReservationUseCase
 import com.universidad.gymclass.domain.usecase.reservations.CreateReservationUseCase
 import com.universidad.gymclass.domain.usecase.reservations.GetExistingReservationUseCase
+import com.universidad.gymclass.presentation.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -32,6 +33,7 @@ class ClassDetailViewModel @Inject constructor(
     private val cancelReservationUseCase: CancelReservationUseCase,
     private val getExistingReservationUseCase: GetExistingReservationUseCase,
     private val authRepository: AuthRepository,
+    private val reminderScheduler: ReminderScheduler,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -77,8 +79,9 @@ class ClassDetailViewModel @Inject constructor(
         if (_uiState.value.isProcessingReservation || _uiState.value.isReserved) return 
         
         val userId = authRepository.getCurrentUser()?.id
-        if (userId == null) {
-            _uiState.update { it.copy(statusMessage = "Error: Usuario no autenticado.") }
+        val gymClass = _uiState.value.gymClass
+        if (userId == null || gymClass == null) {
+            _uiState.update { it.copy(statusMessage = "Error: Usuario o clase no encontrados.") }
             return
         }
 
@@ -89,6 +92,7 @@ class ClassDetailViewModel @Inject constructor(
             
             result.onSuccess { newReservationId ->
                 reservationId = newReservationId
+                reminderScheduler.scheduleReminder(newReservationId, gymClass, classDate)
                 _uiState.update { 
                     it.copy(
                         statusMessage = "¡Reserva confirmada con éxito!", 
@@ -110,7 +114,8 @@ class ClassDetailViewModel @Inject constructor(
     fun onCancelClicked() {
         if (_uiState.value.isProcessingReservation) return
 
-        if (reservationId == null) {
+        val currentReservationId = reservationId
+        if (currentReservationId == null) {
             _uiState.update { it.copy(statusMessage = "Error: No se encontró el ID de la reserva.") }
             return
         }
@@ -118,8 +123,9 @@ class ClassDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessingReservation = true) }
 
-            val result = cancelReservationUseCase(reservationId!!)
+            val result = cancelReservationUseCase(currentReservationId)
             result.onSuccess {
+                reminderScheduler.cancelReminder(currentReservationId)
                 reservationId = null
                 _uiState.update { 
                     it.copy(

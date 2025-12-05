@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,9 +25,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universidad.gymclass.domain.model.GymClass
 import com.universidad.gymclass.presentation.navigation.Screen
-import java.time.DayOfWeek
-import java.time.format.TextStyle
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,11 +33,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val isUserLoggedOut by viewModel.isUserLoggedOut.collectAsState()
 
-    LaunchedEffect(state.isUserLoggedOut) {
-        if (state.isUserLoggedOut) {
+    LaunchedEffect(isUserLoggedOut) {
+        if (isUserLoggedOut) {
             navController.navigate(Screen.LoginScreen.route) {
-                popUpTo(0) // Limpia todo el back stack
+                popUpTo(0)
             }
         }
     }
@@ -51,7 +50,9 @@ fun HomeScreen(
                 actions = {
                     TextButton(onClick = { navController.navigate(Screen.MyReservationsScreen.route) }) {
                         Icon(Icons.Default.CalendarToday, contentDescription = "Mis Reservas", modifier = Modifier.padding(end = 4.dp))
-                        Text("Mis Reservas")
+                    }
+                    IconButton(onClick = { navController.navigate(Screen.SettingsScreen.route) }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Configuración")
                     }
                     IconButton(onClick = { viewModel.signOut() }) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar Sesión")
@@ -86,10 +87,10 @@ fun HomeScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    sortedGroupedClasses.forEach { (day, classes) ->
+                    sortedGroupedClasses.forEach { (dayInt, classes) ->
                         item {
                             Text(
-                                text = day.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                                text = dayInt.toSpanishFullName(),
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                             )
@@ -131,24 +132,24 @@ fun WelcomeMessage() {
 }
 
 @Composable
-fun DayFilterBar(selectedDay: DayOfWeek?, onDaySelected: (DayOfWeek?) -> Unit) {
-    val days = listOf(null) + DayOfWeek.values().toList()
+fun DayFilterBar(selectedDay: Int?, onDaySelected: (Int?) -> Unit) {
+    val days = listOf(null) + (1..7).toList() // 1=Lunes, 7=Domingo
 
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(days) { day ->
-            val isSelected = day == selectedDay
+        items(days) { dayInt ->
+            val isSelected = dayInt == selectedDay
             FilterChip(
                 selected = isSelected,
-                onClick = { onDaySelected(day) },
+                onClick = { onDaySelected(dayInt) },
                 label = {
                     Text(
-                        text = when (day) {
+                        text = when (dayInt) {
                             null -> "Todos"
-                            else -> day.getDisplayName(TextStyle.SHORT, Locale("es", "ES"))
+                            else -> dayInt.toSpanishShortName()
                         }
                     )
                 },
@@ -157,7 +158,6 @@ fun DayFilterBar(selectedDay: DayOfWeek?, onDaySelected: (DayOfWeek?) -> Unit) {
         }
     }
 }
-
 
 @Composable
 fun ClassCard(gymClass: GymClass, onClick: () -> Unit) {
@@ -190,5 +190,31 @@ fun ClassCard(gymClass: GymClass, onClick: () -> Unit) {
                 )
             }
         }
+    }
+}
+
+fun Int.toSpanishFullName(): String {
+    return when (this) {
+        1 -> "Lunes"
+        2 -> "Martes"
+        3 -> "Miércoles"
+        4 -> "Jueves"
+        5 -> "Viernes"
+        6 -> "Sábado"
+        7 -> "Domingo"
+        else -> "Día Desconocido"
+    }
+}
+
+fun Int.toSpanishShortName(): String {
+    return when (this) {
+        1 -> "Lun"
+        2 -> "Mar"
+        3 -> "Mié"
+        4 -> "Jue"
+        5 -> "Vie"
+        6 -> "Sáb"
+        7 -> "Dom"
+        else -> "Err"
     }
 }
